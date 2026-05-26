@@ -1,12 +1,30 @@
-import React, { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, type ReactNode } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
 
-export const UserContext = createContext();
+export interface User {
+  name: string;
+  email: string;
+  profileImageUrl?: string;
+  token?: string;
+}
 
-const UserProvider = ({ children }) => {
+interface UserContextType {
+  user: User | null;
+  loading: boolean;
+  updateUser: (userData: User) => void;
+  clearUser: () => void;
+}
 
-  const [user, setUser] = useState(null);
+export const UserContext = createContext<UserContextType>({
+  user: null,
+  loading: true,
+  updateUser: () => {},
+  clearUser: () => {},
+});
+
+const UserProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,8 +41,8 @@ const UserProvider = ({ children }) => {
           API_PATHS.AUTH.GET_PROFILE
         );
         setUser(response.data);
-      } catch (error) {
-        console.error("User is not authenticated", error);
+      } catch {
+        console.error("User is not authenticated");
         clearUser();
       } finally {
         setLoading(false);
@@ -34,9 +52,9 @@ const UserProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const updateUser = (userData) => {
+  const updateUser = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("token", userData.token);
+    localStorage.setItem("token", userData.token || "");
     setLoading(false);
   };
 

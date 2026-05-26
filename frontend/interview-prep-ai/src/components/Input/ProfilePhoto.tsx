@@ -1,13 +1,20 @@
-import React, { useRef } from "react";
+import { useRef, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import { LuUser, LuUpload, LuTrash } from "react-icons/lu";
 
-const ProfilePhoto = ({ image, setImage, preview, setPreview }) => {
-  const inputRef = useRef(null);
+interface ProfilePhotoProps {
+  image: File | null;
+  setImage: Dispatch<SetStateAction<File | null>>;
+  preview?: string | null;
+  setPreview?: Dispatch<SetStateAction<string | null>>;
+}
 
-  const onChooseFile = () => inputRef.current.click();
+const ProfilePhoto = ({ image, setImage, preview, setPreview }: ProfilePhotoProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const onChooseFile = () => inputRef.current?.click();
+
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       setImage(file);
       if (setPreview) setPreview(URL.createObjectURL(file));

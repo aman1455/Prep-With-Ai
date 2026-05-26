@@ -1,13 +1,20 @@
-import React from "react";
+import { type ReactNode } from "react";
 import { LuX } from "react-icons/lu";
 
-const Drawer = ({ isOpen, onClose, title, children }) => {
+interface DrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: ReactNode;
+}
+
+const Drawer = ({ isOpen, onClose, title, children }: DrawerProps) => {
   return (
     <div
       className={`fixed top-16 right-0 z-40 h-[calc(100dvh-64px)] p-5 overflow-y-auto transition-transform duration-300 ease-out glass-panel-elevated w-full md:w-[40vw] border-l border-border ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}
-      tabIndex="-1"
+      tabIndex={-1}
       aria-labelledby="drawer-right-label"
     >
       <div className="flex items-center justify-between mb-6">

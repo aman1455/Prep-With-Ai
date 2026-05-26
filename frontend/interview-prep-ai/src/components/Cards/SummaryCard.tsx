@@ -1,6 +1,17 @@
-import React from "react";
 import { LuTrash2, LuClock, LuMessagesSquare } from "react-icons/lu";
 import { getInitials } from "../../utils/helper";
+
+interface SummaryCardProps {
+  colors: { bgcolor: string };
+  role: string;
+  topicsToFocus: string;
+  experience: number;
+  questions: number;
+  description?: string;
+  lastUpdated: string;
+  onSelect: () => void;
+  onDelete: () => void;
+}
 
 const SummaryCard = ({
   colors,
@@ -12,7 +23,7 @@ const SummaryCard = ({
   lastUpdated,
   onSelect,
   onDelete,
-}) => {
+}: SummaryCardProps) => {
   return (
     <div
       onClick={onSelect}

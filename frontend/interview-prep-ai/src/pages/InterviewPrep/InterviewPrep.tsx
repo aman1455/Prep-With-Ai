@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,22 +15,46 @@ import AIResponsePreview from "./components/AIResponsePreview";
 
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
+import type { AxiosError } from "axios";
+
+interface Question {
+  _id: string;
+  question: string;
+  answer: string;
+  isPinned: boolean;
+}
+
+interface Session {
+  _id: string;
+  role: string;
+  experience: string;
+  topicsToFocus: string;
+  description?: string;
+  questions: Question[];
+  updatedAt: string;
+}
+
+interface Explanation {
+  title?: string;
+  explanation: string;
+}
 
 const InterviewPrep = () => {
-  const { sessionId } = useParams();
+  const { sessionId } = useParams<{ sessionId: string }>();
 
-  const [sessionData, setSessionData] = useState(null);
+  const [sessionData, setSessionData] = useState<Session | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [openLearnMoreDrawer, setOpenLearnMoreDrawer] = useState(false);
-  const [explanation, setExplanation] = useState(null);
+  const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading interview session...");
 
   const fetchSessionDetailsById = async () => {
     try {
+      if (!sessionId) return;
       setLoadingMessage("Loading interview session...");
       setIsLoading(true);
-      const res = await axiosInstance.get(API_PATHS.SESSION.GET_ONE(sessionId));
+      const res = await axiosInstance.get<{ session: Session }>(API_PATHS.SESSION.GET_ONE(sessionId));
       if (res.data?.session) setSessionData(res.data.session);
     } catch (err) {
       toast.error("Failed to fetch session");
@@ -39,7 +63,7 @@ const InterviewPrep = () => {
     }
   };
 
-  const generateConceptExplanation = async (question) => {
+  const generateConceptExplanation = async (question: string) => {
     try {
       setErrorMsg("");
       setExplanation(null);
@@ -47,7 +71,7 @@ const InterviewPrep = () => {
       setIsLoading(true);
       setOpenLearnMoreDrawer(true);
 
-      const res = await axiosInstance.post(API_PATHS.AI.GENERATE_EXPLANATION, { question });
+      const res = await axiosInstance.post<Explanation>(API_PATHS.AI.GENERATE_EXPLANATION, { question });
       if (res.data) setExplanation(res.data);
     } catch (err) {
       setErrorMsg("Failed to generate explanation.");
@@ -56,14 +80,17 @@ const InterviewPrep = () => {
     }
   };
 
-  const toggleQuestionPinStatus = async (questionId) => {
+  const toggleQuestionPinStatus = async (questionId: string) => {
     try {
-      setSessionData((prev) => ({
-        ...prev,
-        questions: prev.questions.map((q) =>
-          q._id === questionId ? { ...q, isPinned: !q.isPinned } : q
-        ),
-      }));
+      setSessionData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          questions: prev.questions.map((q) =>
+            q._id === questionId ? { ...q, isPinned: !q.isPinned } : q
+          ),
+        };
+      });
 
       const res = await axiosInstance.post(API_PATHS.QUESTION.PIN(questionId), { sessionId });
       if (res.data?.success) {
@@ -88,7 +115,7 @@ const InterviewPrep = () => {
         numberOfQuestions: 10,
       });
 
-      const questions = aiResponse.data
+      const questions: { question: string; answer: string }[] = (aiResponse.data as Array<{ question?: string; questionText?: string; answer?: string; answerText?: string }>)
         .map((q) => ({
           question: typeof q.question === "string" ? q.question : q.questionText || "",
           answer: typeof q.answer === "string" ? q.answer : q.answerText || "",
@@ -104,8 +131,9 @@ const InterviewPrep = () => {
         toast.success("More questions added!");
         fetchSessionDetailsById();
       }
-    } catch (error) {
-      setErrorMsg("Something went wrong");
+    } catch (error: unknown) {
+      const axiosErr = error as AxiosError<{ message: string }>;
+      setErrorMsg(axiosErr?.response?.data?.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +210,7 @@ const InterviewPrep = () => {
       <Drawer
         isOpen={openLearnMoreDrawer}
         onClose={() => setOpenLearnMoreDrawer(false)}
-        title={!isLoading && explanation?.title}
+        title={!isLoading && explanation?.title ? explanation.title : undefined}
       >
         {isLoading && <LoadingMessage message={loadingMessage} />}
 

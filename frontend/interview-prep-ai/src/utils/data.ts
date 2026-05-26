@@ -1,4 +1,14 @@
-export const CARD_BG = [
+interface CardBg {
+  bgcolor: string;
+}
+
+export interface AppFeature {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export const CARD_BG: CardBg[] = [
   { bgcolor: 'linear-gradient(135deg, #1a0a2e 0%, #0e0e19 100%)' },
   { bgcolor: 'linear-gradient(135deg, #0f1535 0%, #0e0e19 100%)' },
   { bgcolor: 'linear-gradient(135deg, #1a0d38 0%, #0e0e19 100%)' },
@@ -11,7 +21,7 @@ export const CARD_BG = [
   { bgcolor: 'linear-gradient(135deg, #140a38 0%, #0e0e19 100%)' },
 ];
 
-export const APP_FEATURES = [
+export const APP_FEATURES: AppFeature[] = [
   {
     id: "01",
     title: "Tailored Just for You",

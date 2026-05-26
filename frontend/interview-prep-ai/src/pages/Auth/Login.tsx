@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState, type FormEvent, type Dispatch, type SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import { validateEmail } from "../../utils/helper";
@@ -6,16 +6,21 @@ import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { UserContext } from "../../context/userContext";
 import { LuLogIn } from "react-icons/lu";
+import type { AxiosError } from "axios";
 
-const Login = ({ setCurrentPage }) => {
+interface LoginProps {
+  setCurrentPage: Dispatch<SetStateAction<string>>;
+}
+
+const Login = ({ setCurrentPage }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
 
@@ -28,7 +33,7 @@ const Login = ({ setCurrentPage }) => {
       return;
     }
 
-    setError("");
+    setError(null);
     setIsLoading(true);
 
     try {
@@ -39,8 +44,9 @@ const Login = ({ setCurrentPage }) => {
         updateUser(response.data);
         navigate("/dashboard");
       }
-    } catch (error) {
-      setError(error?.response?.data?.message || "Unable to log in. Please try again.");
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      setError(axiosErr?.response?.data?.message || "Unable to log in. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +75,7 @@ const Login = ({ setCurrentPage }) => {
           disabled={isLoading}
           className="btn-primary w-full mt-2"
         >
-          {isLoading && <span className="h-4 w-4 rounded-full border-2 border-black border-t-transparent animate-spin" />}
+          {isLoading && <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />}
           {isLoading ? "Signing in..." : "Login"}
         </button>
 

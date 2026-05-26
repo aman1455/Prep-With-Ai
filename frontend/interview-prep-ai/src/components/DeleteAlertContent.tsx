@@ -1,7 +1,11 @@
-import React from "react";
 import { LuCircleAlert } from "react-icons/lu";
 
-const DeleteAlertContent = ({ content, onDelete }) => {
+interface DeleteAlertContentProps {
+  content: string;
+  onDelete: () => void;
+}
+
+const DeleteAlertContent = ({ content, onDelete }: DeleteAlertContentProps) => {
   return (
     <div className="p-6">
       <div className="flex items-center gap-3 mb-4">

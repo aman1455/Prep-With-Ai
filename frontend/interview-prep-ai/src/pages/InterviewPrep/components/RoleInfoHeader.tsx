@@ -1,7 +1,15 @@
-import React from "react";
 import { LuClock, LuMessagesSquare, LuCalendar } from "react-icons/lu";
 
-const RoleInfoHeader = ({ role, topicsToFocus, experience, questions, description, lastUpdated }) => {
+interface RoleInfoHeaderProps {
+  role?: string;
+  topicsToFocus?: string;
+  experience: string | number;
+  questions: string | number;
+  description?: string;
+  lastUpdated?: string;
+}
+
+const RoleInfoHeader = ({ role, topicsToFocus, experience, questions, description, lastUpdated }: RoleInfoHeaderProps) => {
   const exp = Number(experience);
 
   return (

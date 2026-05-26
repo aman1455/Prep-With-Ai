@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { LuCopy, LuCheck, LuCode } from "react-icons/lu";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import type { Components } from "react-markdown";
 
-const AIResponsePreview = ({ content }) => {
+interface AIResponsePreviewProps {
+  content: string;
+}
+
+interface CodeBlockProps {
+  code: string;
+  language: string;
+}
+
+const AIResponsePreview = ({ content }: AIResponsePreviewProps) => {
   if (!content) {
     return (
       <div className="p-4 border border-accent-soft/30 bg-accent-soft/10 rounded-xl">
@@ -86,7 +96,7 @@ const AIResponsePreview = ({ content }) => {
             img({ src, alt }) {
               return <img src={src} alt={alt} className="max-w-full h-auto rounded-xl my-4 border border-border" />;
             },
-          }}
+          } as Components}
         >
           {content}
         </ReactMarkdown>
@@ -95,7 +105,7 @@ const AIResponsePreview = ({ content }) => {
   );
 };
 
-function CodeBlock({ code, language }) {
+function CodeBlock({ code, language }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const copyCode = () => {

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext, type FormEvent, type Dispatch, type SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import ProfilePhoto from "../../components/Input/ProfilePhoto";
@@ -8,18 +8,24 @@ import { API_PATHS } from "../../utils/apiPaths";
 import axiosInstance from "../../utils/axiosInstance";
 import uploadImage from "../../utils/uploadImage";
 import { LuUserPlus } from "react-icons/lu";
+import type { AxiosError } from "axios";
 
-const SignUp = ({ setCurrentPage }) => {
-  const [profilePic, setProfilePic] = useState(null);
+interface SignUpProps {
+  setCurrentPage: Dispatch<SetStateAction<string>>;
+}
+
+const SignUp = ({ setCurrentPage }: SignUpProps) => {
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
 
@@ -27,7 +33,7 @@ const SignUp = ({ setCurrentPage }) => {
     if (!validateEmail(email)) { setError("Please enter a valid email address."); return; }
     if (!password) { setError("Please enter a password."); return; }
 
-    setError("");
+    setError(null);
     setIsLoading(true);
 
     try {
@@ -49,8 +55,9 @@ const SignUp = ({ setCurrentPage }) => {
         updateUser(response.data);
         navigate("/dashboard");
       }
-    } catch (error) {
-      setError(error?.response?.data?.message || "Unable to create your account. Please try again.");
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      setError(axiosErr?.response?.data?.message || "Unable to create your account. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +76,7 @@ const SignUp = ({ setCurrentPage }) => {
       </div>
 
       <form onSubmit={handleSignUp} className="mt-6">
-        <ProfilePhoto image={profilePic} setImage={setProfilePic} />
+        <ProfilePhoto image={profilePic} setImage={setProfilePic} preview={profilePreview} setPreview={setProfilePreview} />
 
         <div className="space-y-4">
           <Input value={fullName} onChange={({ target }) => setFullName(target.value)} label="Full Name" placeholder="John Doe" type="text" />
@@ -80,7 +87,7 @@ const SignUp = ({ setCurrentPage }) => {
         {error && <p className="text-danger text-xs mt-3">{error}</p>}
 
         <button type="submit" disabled={isLoading} className="btn-primary w-full mt-5">
-          {isLoading && <span className="h-4 w-4 rounded-full border-2 border-black border-t-transparent animate-spin" />}
+          {isLoading && <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />}
           {isLoading ? "Creating account..." : "Sign Up"}
         </button>
 

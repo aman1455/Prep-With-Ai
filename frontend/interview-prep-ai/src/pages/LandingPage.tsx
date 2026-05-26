@@ -1,9 +1,10 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import HERO_IMG from "../assets/HERO_IMG.jpg";
 import { APP_FEATURES } from "../utils/data";
+import type { AppFeature } from "../utils/data";
 import { useNavigate } from "react-router-dom";
-import { LuSparkles, LuArrowRight, LuChevronRight } from "react-icons/lu";
-import { motion, AnimatePresence } from "framer-motion";
+import { LuSparkles, LuArrowRight } from "react-icons/lu";
+import { motion } from "framer-motion";
 
 import Login from "./Auth/Login";
 import SignUp from "./Auth/SignUp";
@@ -11,9 +12,11 @@ import Modal from "../components/Modal";
 import { UserContext } from "../context/userContext";
 import ProfileInfoCard from "../components/Cards/ProfileInfoCard";
 
-const stagger = (i) => ({
+const staggerEase = [0.16, 1, 0.3, 1] as const;
+
+const stagger = (i: number) => ({
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { delay: 0.1 * i, duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  animate: { opacity: 1, y: 0, transition: { delay: 0.1 * i, duration: 0.6, ease: staggerEase } },
 });
 
 const LandingPage = () => {
@@ -42,13 +45,13 @@ const LandingPage = () => {
         <motion.header
           initial={{ opacity: 0, y: -10 }}
           animate={mounted ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, ease: staggerEase }}
           className="flex justify-between items-center mb-20 md:mb-28"
         >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accent-secondary flex items-center justify-center">
-                <span className="text-white text-xs font-bold">P</span>
-              </div>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent to-accent-secondary flex items-center justify-center">
+              <span className="text-white text-xs font-bold">P</span>
+            </div>
             <span className="text-lg font-display font-semibold text-text-primary tracking-tight">
               PrepWithAI
             </span>
@@ -70,7 +73,7 @@ const LandingPage = () => {
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={mounted ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.1, ease: staggerEase }}
             className="w-full md:w-1/2"
           >
             <div className="inline-flex items-center gap-2 text-[11px] font-medium text-accent bg-accent-soft/30 border border-accent/20 px-3 py-1.5 rounded-full mb-6 tracking-wide uppercase">
@@ -114,7 +117,7 @@ const LandingPage = () => {
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={mounted ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: staggerEase }}
             className="w-full md:w-1/2"
           >
             <div className="relative">
@@ -140,7 +143,7 @@ const LandingPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
-          {APP_FEATURES.map((feature, i) => (
+          {APP_FEATURES.map((feature: AppFeature, i: number) => (
             <motion.div
               key={feature.id}
               variants={stagger(i)}

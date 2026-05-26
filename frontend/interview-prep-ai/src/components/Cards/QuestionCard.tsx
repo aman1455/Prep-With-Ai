@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LuChevronDown, LuPin, LuPinOff, LuSparkles } from "react-icons/lu";
 import AIResponsePreview from "../../pages/InterviewPrep/components/AIResponsePreview";
 
-const QuestionCard = ({ question, answer, onLearnMore, isPinned, onTogglePin }) => {
+interface QuestionCardProps {
+  question: string;
+  answer: string;
+  onLearnMore: () => void;
+  isPinned: boolean;
+  onTogglePin: () => void;
+}
+
+const QuestionCard = ({ question, answer, onLearnMore, isPinned, onTogglePin }: QuestionCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [height, setHeight] = useState(0);
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isExpanded && contentRef.current) {

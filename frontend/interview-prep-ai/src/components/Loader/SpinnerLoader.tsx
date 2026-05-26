@@ -1,6 +1,10 @@
-import React from "react";
+interface SpinnerLoaderProps {
+  fullscreen?: boolean;
+  size?: number;
+  text?: string;
+}
 
-const SpinnerLoader = ({ fullscreen = false, size = 20, text = "" }) => {
+const SpinnerLoader = ({ fullscreen = false, size = 20, text = "" }: SpinnerLoaderProps) => {
   const spinnerSize = { width: `${size}px`, height: `${size}px` };
 
   return (

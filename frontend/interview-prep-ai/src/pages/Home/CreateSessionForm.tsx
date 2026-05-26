@@ -1,13 +1,31 @@
-import React, { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import SpinnerLoader from "../../components/Loader/SpinnerLoader";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { LuSparkles, LuX } from "react-icons/lu";
+import type { AxiosError } from "axios";
 
-const CreateSessionForm = ({ onClose }) => {
-  const [formData, setFormData] = useState({
+interface FormData {
+  role: string;
+  experience: string;
+  topicsToFocus: string;
+  description: string;
+}
+
+interface CreateSessionFormProps {
+  onClose: () => void;
+}
+
+interface SessionResponse {
+  session: {
+    _id: string;
+  };
+}
+
+const CreateSessionForm = ({ onClose }: CreateSessionFormProps) => {
+  const [formData, setFormData] = useState<FormData>({
     role: "",
     experience: "",
     topicsToFocus: "",
@@ -17,11 +35,11 @@ const CreateSessionForm = ({ onClose }) => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (key, value) => {
+  const handleChange = (key: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleCreateSession = async (e) => {
+  const handleCreateSession = async (e: FormEvent) => {
     e.preventDefault();
     const { role, experience, topicsToFocus } = formData;
 
@@ -43,7 +61,7 @@ const CreateSessionForm = ({ onClose }) => {
 
       const generatedQuestions = Array.isArray(aiResponse.data) ? aiResponse.data : [];
 
-      const response = await axiosInstance.post(API_PATHS.SESSION.CREATE, {
+      const response = await axiosInstance.post<SessionResponse>(API_PATHS.SESSION.CREATE, {
         ...formData,
         questions: generatedQuestions,
         numberOfQuestions: 10,
@@ -53,8 +71,9 @@ const CreateSessionForm = ({ onClose }) => {
         onClose();
         navigate(`/interview-prep/${response.data.session._id}`);
       }
-    } catch (error) {
-      setError(error?.response?.data?.message || "Something went wrong. Please try again.");
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      setError(axiosErr?.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }

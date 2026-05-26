@@ -1,6 +1,14 @@
-import React from "react";
+import { type ReactNode } from "react";
 
-const Modal = ({ children, isOpen, onClose, title, hideHeader }) => {
+interface ModalProps {
+  children: ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  hideHeader?: boolean;
+}
+
+const Modal = ({ children, isOpen, onClose, title, hideHeader }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
