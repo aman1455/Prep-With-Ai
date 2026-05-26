@@ -169,9 +169,9 @@ Our design choices are guided by the goal of transforming passive browsing into 
 
 ## 👨‍💻 Author
 
-**Developed by Aniket Barai**
+**Developed by Aman Negi**
 
-* **GitHub:** [@Aman Negi](https://github.com/aman1455)
+* **GitHub:** [@aman1455](https://github.com/aman1455)
 * **LinkedIn:** [Aman Negi](https://www.linkedin.com/in/aman-negi-651378250 )
 
 ---

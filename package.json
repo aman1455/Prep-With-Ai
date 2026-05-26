@@ -1,4 +1,18 @@
 {
+  "name": "prep-with-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered interview preparation platform — Q&A, coding, system design, behavioral, and timed exam modes",
+  "author": "Aman Negi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aman1455/Prep-With-Ai.git"
+  },
+  "homepage": "https://github.com/aman1455/Prep-With-Ai#readme",
+  "bugs": {
+    "url": "https://github.com/aman1455/Prep-With-Ai/issues"
+  },
   "dependencies": {
     "git-filter-repo": "^0.0.30"
   }

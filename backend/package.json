@@ -1,15 +1,19 @@
 {
-  "name": "backend",
+  "name": "prep-with-ai-backend",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "Backend API for PrepWithAI — interview preparation platform",
+  "author": "Aman Negi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aman1455/Prep-With-Ai.git"
+  },
   "main": "Server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "@google/genai": "^2.0.1",

@@ -1,8 +1,15 @@
 {
-  "name": "interview-prep-ai",
+  "name": "prep-with-ai-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Frontend UI for PrepWithAI — interview preparation platform",
+  "author": "Aman Negi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aman1455/Prep-With-Ai.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
