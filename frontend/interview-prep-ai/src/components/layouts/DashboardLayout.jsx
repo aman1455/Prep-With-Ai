@@ -4,11 +4,11 @@ import Navbar from "./Navbar";
 
 const DashboardLayout = ({ children }) => {
   const { user } = useContext(UserContext);
-  return (
-    <div>
-      <Navbar />
 
-      {user && <div className="">{children}</div>}
+  return (
+    <div className="min-h-screen bg-base">
+      <Navbar />
+      {user && <main className="pt-2">{children}</main>}
     </div>
   );
 };

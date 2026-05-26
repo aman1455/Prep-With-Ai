@@ -1,42 +1,25 @@
 import React, { useState } from "react";
-
-// Icons
 import { LuCopy, LuCheck, LuCode } from "react-icons/lu";
-
-// Markdown renderer
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-// Code highlighter
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-// =====================================================
-// MAIN COMPONENT
-// =====================================================
 const AIResponsePreview = ({ content }) => {
-  // fallback UI when no content
   if (!content) {
     return (
-      <div className="p-4 border border-yellow-200 bg-yellow-50 rounded-xl">
-        <p className="text-yellow-700 text-sm">
-          AI response is loading or not available.
-        </p>
+      <div className="p-4 border border-accent-soft/30 bg-accent-soft/10 rounded-xl">
+        <p className="text-accent text-sm">AI response is loading or not available.</p>
       </div>
     );
   }
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      
-      {/* Markdown wrapper */}
-      <div className="text-[14px] sm:text-[15px] prose prose-slate max-w-none break-words">
-
+      <div className="text-[14px] sm:text-[15px] prose prose-invert max-w-none break-words">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-
-            // CODE HANDLER
             code({ className, children }) {
               const match = /language-(\w+)/.exec(className || "");
               const language = match ? match[1] : "";
@@ -44,127 +27,74 @@ const AIResponsePreview = ({ content }) => {
 
               if (isInline) {
                 return (
-                  <code className="px-1 py-0.5 bg-gray-100 rounded text-pink-600 text-sm break-words">
+                  <code className="px-1.5 py-0.5 bg-surface rounded text-accent text-sm break-words border border-border">
                     {children}
                   </code>
                 );
               }
 
-              return (
-                <CodeBlock
-                  code={String(children).replace(/\n$/, "")}
-                  language={language}
-                />
-              );
+              return <CodeBlock code={String(children).replace(/\n$/, "")} language={language} />;
             },
-
-            // PARAGRAPH (mobile safe)
             p({ children }) {
-              return (
-                <p className="mb-3 leading-7 text-gray-700 break-words">
-                  {children}
-                </p>
-              );
+              return <p className="mb-3 leading-7 text-text-secondary break-words">{children}</p>;
             },
-
             strong({ children }) {
-              return <strong className="font-semibold text-black">{children}</strong>;
+              return <strong className="font-semibold text-text-primary">{children}</strong>;
             },
-
             em({ children }) {
-              return <em className="italic text-gray-700">{children}</em>;
+              return <em className="italic text-text-secondary">{children}</em>;
             },
-
             ul({ children }) {
               return <ul className="list-disc pl-5 my-3 space-y-2">{children}</ul>;
             },
-
             ol({ children }) {
               return <ol className="list-decimal pl-5 my-3 space-y-2">{children}</ol>;
             },
-
             li({ children }) {
-              return <li className="text-gray-700 leading-7">{children}</li>;
+              return <li className="text-text-secondary leading-7">{children}</li>;
             },
-
             blockquote({ children }) {
               return (
-                <blockquote className="border-l-4 border-blue-400 bg-blue-50 pl-4 py-2 my-4 rounded-r-lg text-gray-700">
+                <blockquote className="border-l-4 border-accent bg-accent-soft/10 pl-4 py-2 my-4 rounded-r-lg text-text-secondary">
                   {children}
                 </blockquote>
               );
             },
-
-            // HEADINGS (responsive scaling)
             h1({ children }) {
-              return (
-                <h1 className="text-2xl sm:text-3xl font-bold mt-6 mb-4">
-                  {children}
-                </h1>
-              );
+              return <h1 className="text-xl sm:text-2xl font-display font-bold mt-6 mb-4 text-text-primary">{children}</h1>;
             },
-
             h2({ children }) {
-              return (
-                <h2 className="text-xl sm:text-2xl font-bold mt-5 mb-3">
-                  {children}
-                </h2>
-              );
+              return <h2 className="text-lg sm:text-xl font-display font-bold mt-5 mb-3 text-text-primary">{children}</h2>;
             },
-
             h3({ children }) {
-              return (
-                <h3 className="text-lg sm:text-xl font-semibold mt-4 mb-2">
-                  {children}
-                </h3>
-              );
+              return <h3 className="text-base sm:text-lg font-display font-semibold mt-4 mb-2 text-text-primary">{children}</h3>;
             },
-
-            // LINKS
             a({ children, href }) {
               return (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
+                <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
                   {children}
                 </a>
               );
             },
-
-            // TABLE (mobile scroll safe)
             table({ children }) {
               return (
-                <div className="overflow-x-auto my-4 border rounded-lg">
+                <div className="overflow-x-auto my-4 border border-border rounded-xl">
                   <table className="min-w-full">{children}</table>
                 </div>
               );
             },
-
             img({ src, alt }) {
-              return (
-                <img
-                  src={src}
-                  alt={alt}
-                  className="max-w-full h-auto rounded-lg my-4"
-                />
-              );
+              return <img src={src} alt={alt} className="max-w-full h-auto rounded-xl my-4 border border-border" />;
             },
           }}
         >
           {content}
         </ReactMarkdown>
-
       </div>
     </div>
   );
 };
 
-// =====================================================
-// CODE BLOCK COMPONENT
-// =====================================================
 function CodeBlock({ code, language }) {
   const [copied, setCopied] = useState(false);
 
@@ -175,27 +105,16 @@ function CodeBlock({ code, language }) {
   };
 
   return (
-    <div className="my-5 border rounded-xl overflow-hidden bg-white w-full max-w-full">
-      
-      {/* top bar */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-gray-50">
-        <div className="flex items-center gap-2 text-xs sm:text-sm">
-          <LuCode />
-          <span className="uppercase text-gray-600">
-            {language || "code"}
-          </span>
+    <div className="my-5 border border-border rounded-xl overflow-hidden bg-surface w-full max-w-full">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-surface-hover border-b border-border">
+        <div className="flex items-center gap-2 text-xs">
+          <LuCode className="text-accent" />
+          <span className="uppercase text-text-muted font-medium">{language || "code"}</span>
         </div>
-
-        <button onClick={copyCode} className="text-gray-600 hover:text-black">
-          {copied ? (
-            <LuCheck className="text-green-600" />
-          ) : (
-            <LuCopy />
-          )}
+        <button onClick={copyCode} className="text-text-muted hover:text-text-primary transition-colors">
+          {copied ? <LuCheck className="text-accent" /> : <LuCopy size={14} />}
         </button>
       </div>
-
-      {/* code area (mobile scroll fix) */}
       <div className="overflow-x-auto">
         <SyntaxHighlighter
           language={language}
@@ -203,7 +122,7 @@ function CodeBlock({ code, language }) {
           customStyle={{
             fontSize: 13,
             margin: 0,
-            padding: "12px",
+            padding: "16px",
             background: "transparent",
             width: "100%",
           }}
