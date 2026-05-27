@@ -1,37 +1,25 @@
-import { useContext } from "react";
-import { UserContext } from "../../context/userContext";
-import { useNavigate } from "react-router-dom";
-import Avatar from "../Avatar";
-import { LuLogOut } from "react-icons/lu";
+import { UserButton, useUser } from "@clerk/clerk-react";
 
 const ProfileInfoCard = () => {
-  const { user, clearUser } = useContext(UserContext);
-  const navigate = useNavigate();
-
-  const handleLogOut = () => {
-    localStorage.clear();
-    clearUser();
-    navigate("/");
-  };
+  const { user } = useUser();
 
   return (
     <div className="flex items-center gap-3">
-      <Avatar
-        name={user?.name || ""}
-        image={user?.profileImageUrl || ""}
-        size="sm"
+      <UserButton
+        appearance={{
+          elements: {
+            userButtonAvatarBox: "w-8 h-8",
+            userButtonOuterIdentifier: "text-text-primary text-sm",
+          },
+        }}
       />
       <div className="hidden sm:block">
         <div className="text-sm font-medium text-text-primary leading-tight">
-          {user?.name || "User"}
+          {user?.fullName || "User"}
         </div>
-        <button
-          onClick={handleLogOut}
-          className="inline-flex items-center gap-1 text-[11px] font-medium text-text-muted hover:text-danger transition-colors mt-0.5"
-        >
-          <LuLogOut size={11} />
-          Logout
-        </button>
+        <div className="text-[11px] text-text-muted mt-0.5">
+          {user?.primaryEmailAddress?.emailAddress || ""}
+        </div>
       </div>
     </div>
   );

@@ -17,6 +17,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.7",
     "@tailwindcss/vite": "^4.2.4",
     "axios": "^1.16.1",
     "framer-motion": "^12.38.0",

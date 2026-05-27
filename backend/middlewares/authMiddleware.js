@@ -1,21 +1,29 @@
-const jwt = require("jsonwebtoken")
-const User = require("../models/User")
+const { clerkClient } = require("@clerk/clerk-sdk-node");
+const User = require("../models/User");
 
 const protect = async (req, res, next) => {
-    try {
-        let token = req.headers.authorization;
-
-        if(token && token.startsWith("Bearer")) {
-            token = token.split(" ")[1];
-            const decoded = jwt.verify(token,process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select("-password");
-            next();
-        } else {
-            res.status(401).json({message:"Not authorized, no token"})
-        }
-    } catch (error) {
-        res.status(401).json({message:"Token failed",error:error.message})
+  try {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authorized" });
     }
-}
 
-module.exports = { protect }
+    let user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      const clerkUser = await clerkClient.users.getUser(userId);
+      user = await User.create({
+        clerkId: userId,
+        name: clerkUser.fullName || "User",
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+        profileImageUrl: clerkUser.imageUrl,
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Not authorized", error: error.message });
+  }
+};
+
+module.exports = { protect };

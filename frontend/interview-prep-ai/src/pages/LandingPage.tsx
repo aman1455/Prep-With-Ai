@@ -1,16 +1,11 @@
-import { useContext, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 import HERO_IMG from "../assets/HERO_IMG.jpg";
 import { APP_FEATURES } from "../utils/data";
 import type { AppFeature } from "../utils/data";
-import { useNavigate } from "react-router-dom";
 import { LuSparkles, LuArrowRight } from "react-icons/lu";
 import { motion } from "framer-motion";
-
-import Login from "./Auth/Login";
-import SignUp from "./Auth/SignUp";
-import Modal from "../components/Modal";
-import { UserContext } from "../context/userContext";
-import ProfileInfoCard from "../components/Cards/ProfileInfoCard";
 
 const staggerEase = [0.16, 1, 0.3, 1] as const;
 
@@ -20,18 +15,19 @@ const stagger = (i: number) => ({
 });
 
 const LandingPage = () => {
-  const { user } = useContext(UserContext);
+  const { isSignedIn, isLoaded, user } = useUser();
   const navigate = useNavigate();
-  const [openAuthModal, setOpenAuthModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState("signup");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
-  const handleCTA = () => {
-    if (!user) setOpenAuthModal(true);
-    else navigate("/dashboard");
-  };
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isLoaded, isSignedIn, navigate]);
+
+  const userName = user?.fullName || user?.firstName || "";
 
   return (
     <div className="w-full min-h-screen bg-base relative overflow-x-hidden">
@@ -57,15 +53,32 @@ const LandingPage = () => {
             </span>
           </div>
 
-          {user ? (
-            <ProfileInfoCard />
+          {isSignedIn ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-text-secondary hidden sm:block">{userName}</span>
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: "w-8 h-8",
+                    userButtonOuterIdentifier: "text-text-primary text-sm",
+                    userButtonTrigger: "focus:shadow-none",
+                  },
+                }}
+              />
+            </div>
           ) : (
-            <button
-              onClick={() => { setCurrentPage("login"); setOpenAuthModal(true); }}
-              className="text-sm font-semibold text-white bg-accent px-5 py-2 rounded-full shadow-lg shadow-accent/40 hover:shadow-xl hover:shadow-accent/60 hover:brightness-110 transition-all duration-300 animate-pulse-glow"
-            >
-              Sign In
-            </button>
+            <div className="flex items-center gap-3">
+              <SignInButton mode="redirect" fallbackRedirectUrl="/dashboard">
+                <button className="text-sm font-semibold text-accent hover:text-accent/80 transition-colors duration-200">
+                  Sign In
+                </button>
+              </SignInButton>
+              <SignUpButton mode="redirect" fallbackRedirectUrl="/dashboard">
+                <button className="text-sm font-semibold text-white bg-accent px-5 py-2 rounded-full shadow-lg shadow-accent/40 hover:shadow-xl hover:shadow-accent/60 hover:brightness-110 transition-all duration-300 animate-pulse-glow">
+                  Sign Up
+                </button>
+              </SignUpButton>
+            </div>
           )}
         </motion.header>
 
@@ -93,18 +106,20 @@ const LandingPage = () => {
             </p>
 
             <div className="flex items-center gap-4">
-              <button
-                onClick={handleCTA}
-                className="group inline-flex items-center gap-2 bg-accent text-white font-semibold text-sm px-6 py-3 rounded-full hover:brightness-110 transition-all duration-200"
-              >
-                {user ? "Go to Dashboard" : "Start Practicing"}
-                <LuArrowRight className="group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              <SignInButton mode="redirect" fallbackRedirectUrl="/dashboard">
+                <button className="group inline-flex items-center gap-2 bg-accent text-white font-semibold text-sm px-6 py-3 rounded-full hover:brightness-110 transition-all duration-200">
+                  Start Practicing
+                  <LuArrowRight className="group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </SignInButton>
 
               <div className="hidden sm:flex items-center gap-2 text-xs text-text-muted">
                 <div className="flex -space-x-2">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-[9px] font-medium text-text-secondary">
+                    <div
+                      key={i}
+                      className="w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-[9px] font-medium text-text-secondary"
+                    >
                       {["JD", "SK", "AL"][i]}
                     </div>
                   ))}
@@ -182,17 +197,6 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-
-      <Modal
-        isOpen={openAuthModal}
-        onClose={() => { setOpenAuthModal(false); setCurrentPage("login"); }}
-        hideHeader
-      >
-        <div>
-          {currentPage === "login" && <Login setCurrentPage={setCurrentPage} />}
-          {currentPage === "signup" && <SignUp setCurrentPage={setCurrentPage} />}
-        </div>
-      </Modal>
     </div>
   );
 };

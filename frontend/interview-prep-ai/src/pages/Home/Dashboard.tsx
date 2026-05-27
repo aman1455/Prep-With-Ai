@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { motion } from "framer-motion";
@@ -13,7 +14,6 @@ import CreateSessionForm from "./CreateSessionForm";
 import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { CARD_BG } from "../../utils/data";
-import { UserContext } from "../../context/userContext";
 import type { AxiosError } from "axios";
 
 interface Session {
@@ -27,7 +27,7 @@ interface Session {
 }
 
 const Dashboard = () => {
-  const { loading: userLoading } = useContext(UserContext);
+  const { isLoaded } = useUser();
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [openCreateModal, setOpenCreateModal] = useState(false);
@@ -64,8 +64,8 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!userLoading) fetchSessions();
-  }, [userLoading]);
+    if (isLoaded) fetchSessions();
+  }, [isLoaded]);
 
   return (
     <DashboardLayout>
