@@ -1,24 +1,21 @@
 type GetTokenFn = () => Promise<string | null>;
 
 let getTokenFn: GetTokenFn | null = null;
+let tokenReadyResolve: ((fn: GetTokenFn) => void) | null = null;
 
-let tokenReady: Promise<string | null>;
-let resolveTokenReady: ((token: string | null) => void) | null = null;
+const tokenFnReady: Promise<GetTokenFn> = new Promise((resolve) => {
+  tokenReadyResolve = resolve;
+});
 
 export const setGetToken = (fn: GetTokenFn) => {
   getTokenFn = fn;
-  if (resolveTokenReady) {
-    fn().then(resolveTokenReady);
-    resolveTokenReady = null;
+  if (tokenReadyResolve) {
+    tokenReadyResolve(fn);
+    tokenReadyResolve = null;
   }
 };
 
 export const getAuthToken = async (): Promise<string | null> => {
-  if (getTokenFn) return getTokenFn();
-  if (!tokenReady) {
-    tokenReady = new Promise((resolve) => {
-      resolveTokenReady = resolve;
-    });
-  }
-  return tokenReady;
+  const fn = getTokenFn || (await tokenFnReady);
+  return fn();
 };

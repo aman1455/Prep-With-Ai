@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import moment from "moment";
 import { AnimatePresence, motion } from "framer-motion";
-import { LuCircleAlert, LuListCollapse, LuSparkles } from "react-icons/lu";
+import { LuCircleAlert, LuPlus, LuSparkles, LuPin } from "react-icons/lu";
 import { toast } from "react-hot-toast";
 
 import DashboardLayout from "../../components/layouts/DashboardLayout";
@@ -39,6 +39,8 @@ interface Explanation {
   explanation: string;
 }
 
+type Filter = "all" | "pinned";
+
 const InterviewPrep = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
@@ -47,7 +49,15 @@ const InterviewPrep = () => {
   const [openLearnMoreDrawer, setOpenLearnMoreDrawer] = useState(false);
   const [explanation, setExplanation] = useState<Explanation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading interview session...");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  const filteredQuestions = sessionData?.questions?.filter((q) =>
+    filter === "pinned" ? q.isPinned : true
+  ) || [];
+
+  const pinnedCount = sessionData?.questions?.filter((q) => q.isPinned).length || 0;
 
   const fetchSessionDetailsById = async () => {
     try {
@@ -56,7 +66,7 @@ const InterviewPrep = () => {
       setIsLoading(true);
       const res = await axiosInstance.get<{ session: Session }>(API_PATHS.SESSION.GET_ONE(sessionId));
       if (res.data?.session) setSessionData(res.data.session);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch session");
     } finally {
       setIsLoading(false);
@@ -73,7 +83,7 @@ const InterviewPrep = () => {
 
       const res = await axiosInstance.post<Explanation>(API_PATHS.AI.GENERATE_EXPLANATION, { question });
       if (res.data) setExplanation(res.data);
-    } catch (err) {
+    } catch {
       setErrorMsg("Failed to generate explanation.");
     } finally {
       setIsLoading(false);
@@ -97,7 +107,7 @@ const InterviewPrep = () => {
         toast.success("Question updated");
         fetchSessionDetailsById();
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to update pin");
       fetchSessionDetailsById();
     }
@@ -105,8 +115,7 @@ const InterviewPrep = () => {
 
   const uploadMoreQuestions = async () => {
     try {
-      setLoadingMessage("Generating AI questions...");
-      setIsLoading(true);
+      setIsGenerating(true);
 
       const aiResponse = await axiosInstance.post(API_PATHS.AI.GENERATE_QUESTIONS, {
         role: sessionData?.role,
@@ -133,9 +142,9 @@ const InterviewPrep = () => {
       }
     } catch (error: unknown) {
       const axiosErr = error as AxiosError<{ message: string }>;
-      setErrorMsg(axiosErr?.response?.data?.message || "Something went wrong");
+      toast.error(axiosErr?.response?.data?.message || "Something went wrong");
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -154,59 +163,120 @@ const InterviewPrep = () => {
         lastUpdated={sessionData?.updatedAt ? moment(sessionData.updatedAt).format("Do MMM YYYY") : ""}
       />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center gap-2 mb-6">
-          <LuSparkles className="text-accent" size={16} />
-          <h2 className="text-base font-display font-semibold text-text-primary">Interview Q&A</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-          <div className="md:col-span-8 lg:col-span-7">
-            {isLoading && !openLearnMoreDrawer && (
-              <LoadingMessage message={loadingMessage} />
-            )}
-
-            <AnimatePresence>
-              {sessionData?.questions?.map((q, index) => (
-                <motion.div
-                  key={q._id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
-                  className="mb-4"
-                >
-                  <QuestionCard
-                    question={q.question}
-                    answer={q.answer}
-                    isPinned={q.isPinned}
-                    onLearnMore={() => generateConceptExplanation(q.question)}
-                    onTogglePin={() => toggleQuestionPinStatus(q._id)}
-                  />
-
-                  {sessionData?.questions?.length === index + 1 && (
-                    <div className="flex justify-center mt-6">
-                      <button
-                        onClick={uploadMoreQuestions}
-                        disabled={isLoading}
-                        className="btn-secondary text-xs px-5 py-2.5"
-                      >
-                        {isLoading ? (
-                          <SpinnerLoader size={16} />
-                        ) : (
-                          <LuListCollapse size={14} />
-                        )}
-                        Load More Questions
-                      </button>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 p-1 bg-surface border border-border rounded-xl">
+              <button
+                onClick={() => setFilter("all")}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  filter === "all"
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-text-muted hover:text-text-secondary"
+                }`}
+              >
+                All ({sessionData?.questions?.length || 0})
+              </button>
+              <button
+                onClick={() => setFilter("pinned")}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                  filter === "pinned"
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-text-muted hover:text-text-secondary"
+                }`}
+              >
+                <LuPin size={11} />
+                Pinned ({pinnedCount})
+              </button>
+            </div>
           </div>
+
+          <button
+            onClick={uploadMoreQuestions}
+            disabled={isGenerating}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isGenerating ? (
+              <SpinnerLoader size={14} />
+            ) : (
+              <LuPlus size={14} />
+            )}
+            {isGenerating ? "Generating..." : "Generate More"}
+          </button>
         </div>
+
+        {/* Loading state */}
+        {isLoading && !openLearnMoreDrawer && (
+          <div className="flex items-center justify-center py-20">
+            <LoadingMessage message={loadingMessage} />
+          </div>
+        )}
+
+        {/* Empty pinned state */}
+        {!isLoading && filter === "pinned" && filteredQuestions.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-16 text-center"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-accent-soft/30 border border-accent/20 flex items-center justify-center mb-4">
+              <LuPin className="text-accent" size={22} />
+            </div>
+            <p className="text-sm text-text-secondary">No pinned questions yet</p>
+            <p className="text-xs text-text-muted mt-1">Pin important questions for quick revision</p>
+          </motion.div>
+        )}
+
+        {/* Questions grid */}
+        <div className="space-y-4">
+          <AnimatePresence mode="popLayout">
+            {filteredQuestions.map((q, index) => (
+              <motion.div
+                key={q._id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.25, delay: index * 0.03 }}
+                layout
+              >
+                <QuestionCard
+                  question={q.question}
+                  answer={q.answer}
+                  isPinned={q.isPinned}
+                  onLearnMore={() => generateConceptExplanation(q.question)}
+                  onTogglePin={() => toggleQuestionPinStatus(q._id)}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom generate more */}
+        {!isLoading && filteredQuestions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex justify-center mt-10"
+          >
+            <button
+              onClick={uploadMoreQuestions}
+              disabled={isGenerating}
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium border border-dashed border-border text-text-muted hover:border-accent/30 hover:text-accent hover:bg-accent/5 transition-all disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <SpinnerLoader size={16} />
+              ) : (
+                <LuSparkles size={16} className="group-hover:rotate-12 transition-transform" />
+              )}
+              {isGenerating ? "Generating questions..." : "Generate 10 more questions"}
+            </button>
+          </motion.div>
+        )}
       </div>
 
+      {/* AI Explanation Drawer */}
       <Drawer
         isOpen={openLearnMoreDrawer}
         onClose={() => setOpenLearnMoreDrawer(false)}

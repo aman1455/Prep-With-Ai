@@ -16,6 +16,8 @@ axiosInstance.interceptors.request.use(
     const token = await getAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("No auth token available — request may fail");
     }
     return config;
   },

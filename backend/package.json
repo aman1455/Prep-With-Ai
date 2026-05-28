@@ -9,14 +9,15 @@
     "type": "git",
     "url": "git+https://github.com/aman1455/Prep-With-Ai.git"
   },
-  "main": "Server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node src/server.ts"
   },
   "type": "commonjs",
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.1.7",
+    "@clerk/express": "^2.1.21",
     "@google/genai": "^2.0.1",
     "@google/generative-ai": "^0.24.1",
     "cors": "^2.8.6",
@@ -25,9 +26,16 @@
     "groq-sdk": "^1.2.0",
     "mongoose": "^9.6.2",
     "multer": "^2.1.1",
-    "openai": "^6.37.0"
+    "openai": "^6.37.0",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^25.9.1",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   }
 }

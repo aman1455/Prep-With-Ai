@@ -1,15 +1,9 @@
-// prompts.js
-
-/**
- * Generates a prompt for the AI to produce technical interview questions and answers.
- * Ensures the AI strictly returns a valid JSON array.
- */
-const questionAnswerPrompt = (
-  role,
-  experience,
-  topicsToFocus,
-  numberOfQuestions
-) => `
+export const questionAnswerPrompt = (
+  role: string,
+  experience: string,
+  topicsToFocus: string,
+  numberOfQuestions: number
+): string => `
 You are an expert technical interviewer and educator.
 
 Generate exactly ${numberOfQuestions} interview questions and answers.
@@ -46,12 +40,7 @@ Strict Rules:
 6. Return valid parsable JSON only.
 `;
 
-  
-/**
- * Generates a prompt for the AI to provide a detailed explanation of a single interview question.
- * Ensures the AI returns a strictly valid JSON object with title and explanation.
- */
-const conceptExplainPrompt = (question) => `
+export const conceptExplainPrompt = (question: string): string => `
 Explain this interview question for a beginner developer:
 
 "${question}"
@@ -69,5 +58,3 @@ Rules:
 3. Include examples if needed.
 4. No text outside JSON.
 `;
-
-module.exports = { questionAnswerPrompt, conceptExplainPrompt };
